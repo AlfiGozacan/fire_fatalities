@@ -1,4 +1,4 @@
-setwd("C:/Users/agozacan/OneDrive - Humberside Fire and Rescue Service/Fire Fatality Profiling/Data")
+setwd("C:/../Data")
 casualties <- read.csv("casualties.csv")
 df <- as.data.frame(casualties)
 
