@@ -1,4 +1,4 @@
-breakpoints <- c(0,1,5.5,10.5,16.5,24.5,39.5,54.5,64.5,79.5,100) 
+breakpoints <- c(0,1,5.5,10.5,16.5,24.5,39.5,54.5,64.5,79.5,100)
 
 df2 <- data.frame(Age = unique(df$VICTIM_AGE))
 df2$Age <- sort(df2$Age)
