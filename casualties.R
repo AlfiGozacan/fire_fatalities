@@ -28,19 +28,19 @@ for(i in 1:length(df5$Source)){
 }
 
 source = "Cooking appliances"
-age = 59.5
+# age = 59.5
 age = 72
 
-counts <- c(sum(df4$Count[which(df4$Age < age & df4$Gender == "Male" & df4$Source == source)]),
-sum(df4$Count[which(df4$Age >= age & df4$Gender == "Male" & df4$Source == source)]),
-sum(df4$Count[which(df4$Age < age & df4$Gender == "Female" & df4$Source == source)]),
+counts <- c(sum(df4$Count[which(df4$Age >= age & df4$Gender == "Male" & df4$Source == source)]),
+sum(df4$Count[which(df4$Age < age & df4$Gender == "Male" & df4$Source == source)]),
 sum(df4$Count[which(df4$Age >= age & df4$Gender == "Female" & df4$Source == source)]),
-sum(df4$Count[which(df4$Age < age & df4$Gender == "Male" & df4$Source != source)]),
+sum(df4$Count[which(df4$Age < age & df4$Gender == "Female" & df4$Source == source)]),
 sum(df4$Count[which(df4$Age >= age & df4$Gender == "Male" & df4$Source != source)]),
-sum(df4$Count[which(df4$Age < age & df4$Gender == "Female" & df4$Source != source)]),
-sum(df4$Count[which(df4$Age >= age & df4$Gender == "Female" & df4$Source != source)]))
+sum(df4$Count[which(df4$Age < age & df4$Gender == "Male" & df4$Source != source)]),
+sum(df4$Count[which(df4$Age >= age & df4$Gender == "Female" & df4$Source != source)]),
+sum(df4$Count[which(df4$Age < age & df4$Gender == "Female" & df4$Source != source)]))
 
-df6 <- data.frame(expand.grid(Age = c(paste("Under", age), paste(age, "or Over")),
+df6 <- data.frame(expand.grid(Age = c(paste("65 or Over"), paste("Under 65")),
                               Gender = c("Male", "Female"),
                               Source = c(source, "Other")
                               ),
@@ -48,7 +48,9 @@ df6 <- data.frame(expand.grid(Age = c(paste("Under", age), paste(age, "or Over")
 )
 
 cont_table <- xtabs(Count ~ Age + Source + Gender, data = df6)
-cont_table
+
+odds.ratio(cont_table[,,1])
+odds.ratio(cont_table[,,2])
 
 library(vcd)
 
@@ -62,5 +64,6 @@ mosaic(cont_table,
                  )
 )
 
-mantelhaen.test(cont_table)
+chisq.test(cont_table[,,1])
 
+mantelhaen.test(cont_table)

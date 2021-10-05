@@ -12,28 +12,28 @@ anova(logreg)
 
 #### BEHIND THE SCENES ####
 
-library(caret)
-dummy <- dummyVars(" ~ .", data = df[,1:ncol(df)-1])
-X <- data.frame(predict(dummy, newdata = df))
-library(dplyr) 
-X <- X %>% select(-contains(".0"))
-X <- cbind(rep(1), X)
-
-X <- as.matrix(X)
-coeffs <- as.vector(logreg$coefficients)
-dim(t(X))
-length(coeffs)
-
-predictors <- as.vector(logreg$coefficients) %*% t(X)
-
-response <- function(eta){
-  return(exp(eta) / (1 + exp(eta)))
-}
-
-probabilities <- sapply(predictors, FUN = response)
-
-hist(predictors)
-hist(probabilities)
+# library(caret)
+# dummy <- dummyVars(" ~ .", data = df[,1:ncol(df)-1])
+# X <- data.frame(predict(dummy, newdata = df))
+# library(dplyr) 
+# X <- X %>% select(-contains(".0"))
+# X <- cbind(rep(1), X)
+# 
+# X <- as.matrix(X)
+# coeffs <- as.vector(logreg$coefficients)
+# dim(t(X))
+# length(coeffs)
+# 
+# predictors <- as.vector(logreg$coefficients) %*% t(X)
+# 
+# response <- function(eta){
+#   return(exp(eta) / (1 + exp(eta)))
+# }
+# 
+# probabilities <- sapply(predictors, FUN = response)
+# 
+# hist(predictors)
+# hist(probabilities)
 
 #### OR.......... ####
 
@@ -42,7 +42,7 @@ hist(probabilities2)
 
 #### PLOT ####
 
-df$PREDICTION <- probabilities
+df$PREDICTION <- probabilities2
 library(pROC)
 roc(FATALITY ~ PREDICTION, data = df, plot = TRUE)
 
