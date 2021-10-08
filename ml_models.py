@@ -79,5 +79,7 @@ titles = ["AdaBoost", "Random Forest", "Logistic Regression", "XGBoost"]
 for i in range(len(probas)):
     
     skplt.metrics.plot_roc(y_test, probas[i], title=titles[i])
- 
+
+    plt.savefig("C:\\Users\\agozacan\\OneDrive - Humberside Fire and Rescue Service\\Fire Fatality Profiling\\Reports\\Pictures\\"+titles[i]+"_ROC.png", dpi = 200, bbox_inches = "tight")
+
 plt.show()
