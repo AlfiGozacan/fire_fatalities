@@ -9,18 +9,18 @@ from sklearn.metrics import classification_report
 import scikitplot as skplt
 import matplotlib.pyplot as plt
 
-df = pd.read_csv("C:\\Users\\agozacan\\OneDrive - Humberside Fire and Rescue Service\\Fire Fatality Profiling\\Data\\model_data.csv")
+df = pd.read_csv("C:\\Users\\agozacan\\OneDrive - Humberside Fire and Rescue Service\\Fire Fatality Profiling\\Data\\model_data_dummy.csv")
 
 ncols = len(df.columns)
 
 training_set, test_set = train_test_split(df, test_size = 0.3)
 
-X_train = training_set.iloc[:,:ncols-1]
-y_train = training_set.iloc[:,ncols-1]
-X_test = test_set.iloc[:,:ncols-1]
-y_test = test_set.iloc[:,ncols-1]
+X_train = training_set.iloc[:,:-1]
+y_train = training_set.iloc[:,-1]
+X_test = test_set.iloc[:,:-1]
+y_test = test_set.iloc[:,-1]
 
-adaboost = AdaBoostClassifier(n_estimators = 100, base_estimator = None, learning_rate = 1)
+adaboost = AdaBoostClassifier()
 adaboost.fit(X_train, y_train)
 
 rf = RandomForestClassifier()
@@ -80,6 +80,6 @@ for i in range(len(probas)):
     
     skplt.metrics.plot_roc(y_test, probas[i], title=titles[i])
 
-    plt.savefig("C:\\Users\\agozacan\\OneDrive - Humberside Fire and Rescue Service\\Fire Fatality Profiling\\Reports\\Pictures\\"+titles[i]+"_ROC.png", dpi = 200, bbox_inches = "tight")
+    # plt.savefig("C:\\Users\\agozacan\\OneDrive - Humberside Fire and Rescue Service\\Fire Fatality Profiling\\Reports\\Pictures\\"+titles[i]+"_ROC.png", dpi = 200, bbox_inches = "tight")
 
 plt.show()
