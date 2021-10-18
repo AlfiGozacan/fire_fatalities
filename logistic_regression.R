@@ -5,7 +5,12 @@ for(i in 1:(ncol(df)-1)){
   df[,i] <- as.factor(df[,i])
 }
 
-logreg <- glm(FATALITY ~ ., data = df, family = binomial(link = "logit"))
+training_indices = sample(1:length(df$FATALITY), round(0.7 * length(df$FATALITY)), replace=FALSE)
+
+training_data = df[training_indices,]
+test_data = df[-training_indices,]
+
+logreg <- glm(FATALITY ~ ., data = training_data, family = binomial(link = "logit"))
 logreg
 summary(logreg)
 anova(logreg)
@@ -37,23 +42,23 @@ anova(logreg)
 
 #### OR.......... ####
 
-probabilities2 <- predict(logreg, newdata = df, type = "response")
+probabilities2 <- predict(logreg, newdata = test_data, type = "response")
 hist(probabilities2)
 
 #### PLOT ####
 
-df$PREDICTION <- probabilities2
+test_data$PREDICTION <- probabilities2
 library(pROC)
-roc(FATALITY ~ PREDICTION, data = df, plot = TRUE)
+roc(FATALITY ~ PREDICTION, data = test_data, plot = TRUE)
 
 #### CONFUSION MATRIX ####
 
-for(i in 1:length(df$FATALITY)){
-  df$PREDICTION_BINARY[i] = round(df$PREDICTION[i])
+for(i in 1:length(test_data$FATALITY)){
+  test_data$PREDICTION_BINARY[i] = round(test_data$PREDICTION[i])
 }
 
 library(caret)
-confusionMatrix(as.factor(df$FATALITY), as.factor(df$PREDICTION_BINARY), positive = "1")
+confusionMatrix(as.factor(test_data$FATALITY), as.factor(test_data$PREDICTION_BINARY), positive = "1")
 
 # counts <- c(sum(df$VICTIM_LOCATION_FOUND == 0 & df$FATALITY == 0 & df$VICTIM_LOCATION_START == 0),
 #             sum(df$VICTIM_LOCATION_FOUND == 1 & df$FATALITY == 0 & df$VICTIM_LOCATION_START == 0),
