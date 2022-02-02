@@ -4,7 +4,6 @@ print("Loading libraries...")
 import pyodbc
 import pandas as pd
 import numpy as np
-import math
 import datetime
 
 from tqdm import tqdm
@@ -24,8 +23,12 @@ multipliers = pd.DataFrame({
                    "Is aged 65 to 79 and female",
                    "Is aged 80 or over and male",
                    "Is a smoker and male",
-                   "Is a smoker and female"],
-    "Multiplier" : [1.00, 1.78, 2.00, 2.08, 2.37, 2.63, 4.52, 6.68]})
+                   "Is a smoker and female",
+                   "Has restricted mobility",
+                   "Regularly drinks alcohol once or more per day",
+                   "Is living in social rented housing"],
+    "Multiplier" : [1.00, 1.78, 2.00, 2.08, 2.37, 2.63, 4.52, 6.68, 1.10, 1.10, 3.89],
+    "Mosaic_Index" : ["--", 31, "--", "--", "--", "--", [1033, 0], [1033, 0], 1156, 1049, 102]})
 
 ### Connect to SQL Server -------------------
 print("Connecting to SQL Server (HQCFRMISSQL)...")
@@ -76,8 +79,6 @@ for i in range(-66, 0):
 
         mosaic_scores.loc[i+66, "Male"] = 1
 
-for i in range(-66, 0):
-
     if mosaic_means.iloc[31, i] > mosaic_means.iloc[31, -82]:
 
         mosaic_scores.loc[i+66, "Single"] = 1
@@ -86,6 +87,18 @@ for i in range(-66, 0):
 
         mosaic_scores.loc[i+66, "Smoker"] = 1
 
+    if mosaic_means.iloc[1156, i] > mosaic_means.iloc[1156, -82]:
+
+        mosaic_scores.loc[i+66, "Restricted_Mobility"] = 1
+
+    if mosaic_means.iloc[1049, i] > mosaic_means.iloc[1049, -82]:
+
+        mosaic_scores.loc[i+66, "Alcohol"] = 1
+
+    if mosaic_means.iloc[102, i] > mosaic_means.iloc[102, -82]:
+
+        mosaic_scores.loc[i+66, "Rented"] = 1
+
 mosaic_scores.replace(np.nan, 0, inplace=True)
 
 df = df.merge(right=mosaic_scores, left_on="Type_Desc", right_on="Mosaic_Type", how="left")
@@ -93,6 +106,18 @@ df = df.merge(right=mosaic_scores, left_on="Type_Desc", right_on="Mosaic_Type", 
 for i in tqdm(range(len(df))):
 
     score = multipliers.iloc[0, 1]
+
+    if df.loc[i, "Restricted_Mobility"] == 1:
+
+        score = score * multipliers.iloc[8, 1]
+
+    if df.loc[i, "Alcohol"] == 1:
+
+        score = score * multipliers.iloc[9, 1]
+
+    if df.loc[i, "Rented"] == 1:
+
+        score = score * multipliers.iloc[10, 1]
 
     if df.loc[i, "Single"] == 1:
 
@@ -145,7 +170,7 @@ for i in tqdm(range(len(df))):
 ### Save file
 print("Saving dataframe of assigned scores...")
 
-df.to_csv("C:\\Users\\agozacan\\OneDrive - Humberside Fire and Rescue Service\\Fire Fatality Profiling\\Data\\final_scores.csv", index=False)
+df.to_csv("C:\\Users\\agozacan\\OneDrive - Humberside Fire and Rescue Service\\Fire Fatality Profiling\\Data\\final_scores_with_othercircs.csv", index=False)
 
 ### Complete
 print("Done.")
