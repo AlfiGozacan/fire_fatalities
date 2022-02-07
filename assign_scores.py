@@ -11,9 +11,11 @@ from tqdm import tqdm
 ### Load and create local data --------------
 print("Loading and creating local data...")
 
-mosaic_means = pd.read_csv("C:\\Users\\agozacan\\OneDrive - Humberside Fire and Rescue Service\\Experian Data\\mosaic_means.csv")
+file_path = "C:\\path_to_data\\"
 
-exeter = pd.read_csv("C:\\Users\\agozacan\\OneDrive - Humberside Fire and Rescue Service\\Exeter Data\\exeter_data.csv")
+mosaic_means = pd.read_csv(file_path+"mosaic_means.csv")
+
+exeter = pd.read_csv(file_path+"exeter_data.csv")
 
 multipliers = pd.DataFrame({
     "Attribute" : ["Base score",
@@ -170,7 +172,7 @@ for i in tqdm(range(len(df))):
 ### Save file
 print("Saving dataframe of assigned scores...")
 
-df.to_csv("C:\\Users\\agozacan\\OneDrive - Humberside Fire and Rescue Service\\Fire Fatality Profiling\\Data\\final_scores_with_othercircs.csv", index=False)
+df.to_csv(file_path+"output.csv", index=False)
 
 ### Complete
 print("Done.")
