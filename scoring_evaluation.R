@@ -10,8 +10,6 @@ library(plotly)
 
 scores <- read.csv("C:/Users/agozacan/OneDrive - Humberside Fire and Rescue Service/Fire Fatality Profiling/Input and Output/output.csv")
 
-scores = scores[-which(scores$Mosaic_Type == ""),]
-
 ranks <- data.frame("Final_Score" = unique(scores$Final_Score))
 
 for (i in 1:length(ranks$Final_Score)) {
@@ -69,6 +67,9 @@ scores %>%
   count(Final_Score) %>%
   arrange(Final_Score)
 
+scores %>%
+  count(Quantile)
+
 old_scores %>%
   count(Final_Prio) %>%
   arrange(Final_Prio)
@@ -111,17 +112,16 @@ ggplotly(p)
 
 # Proportion of incidents with casualties / fatalities by score ntile
 p <- scores %>%
-  mutate(ntile = ntile(Final_Score, 9)) %>%
   left_join(incidents %>%
               mutate(UPRN = as.numeric(UPRN)) %>%
               select(UPRN, CALLDATE, NUMBER_OF_CASUALTIES, NUMBER_OF_FATALITIES),
             by="UPRN") %>%
   replace_na(list(NUMBER_OF_CASUALTIES = 0, NUMBER_OF_FATALITIES = 0)) %>%
-  group_by(ntile) %>%
+  group_by(Quantile) %>%
   summarise(total_casualties = sum(NUMBER_OF_CASUALTIES),
             total_fatalities = sum(NUMBER_OF_FATALITIES)) %>%
   mutate(total_casfat = total_casualties + total_fatalities) %>%
-  ggplot(aes(as.factor(ntile), total_casfat)) +
+  ggplot(aes(reorder(Quantile, -total_casfat), total_casfat)) +
   geom_col(fill="royalblue") +
   ggtitle("Number of incidents involving a casualty or a fatality in Humberside by 9-tile (Proposed Model)") +
   xlab("9-tile (higher score equates to higher risk)") +
