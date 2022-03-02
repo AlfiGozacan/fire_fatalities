@@ -293,9 +293,17 @@ num_exeter = len(df[df["is_Exeter"] == 1])
 print(f"{initial_length - final_length} entries in the dataset have been dropped due to them having duplicate UPRNs (highest risk is kept).")
 print(f"There are {len(df)} dwellings in the final output, of which {num_exeter} are from the Exeter list.")
 
-noisy_score = (np.array(df["Final_Score"]) + np.random.random(size=len(df)) * 1e-5)
+df["Final_Score"] = round(df["Final_Score"], 2)
 
-df["Quantile"] = pd.qcut(noisy_score, q=9, labels=["NR", "F", "E", "D", "C", "B", "B+", "A", "A+"])
+df.loc[df.index[df["Final_Score"] > 0], "Priority"] = "NR"
+df.loc[df.index[df["Final_Score"] > 5], "Priority"] = "F"
+df.loc[df.index[df["Final_Score"] > 10], "Priority"] = "E"
+df.loc[df.index[df["Final_Score"] > 16], "Priority"] = "D"
+df.loc[df.index[df["Final_Score"] > 30], "Priority"] = "C"
+df.loc[df.index[df["Final_Score"] > 55], "Priority"] = "B"
+df.loc[df.index[df["Final_Score"] > 70], "Priority"] = "B+"
+df.loc[df.index[df["Final_Score"] > 110], "Priority"] = "A"
+df.loc[df.index[df["Final_Score"] > 130], "Priority"] = "A+"
 
 ### Save file
 print("Saving final dataframe...")

@@ -68,7 +68,7 @@ scores %>%
   arrange(Final_Score)
 
 scores %>%
-  count(Quantile)
+  count(Priority)
 
 old_scores %>%
   count(Final_Prio) %>%
@@ -110,24 +110,24 @@ p <- scores %>%
 
 ggplotly(p)
 
-# Proportion of incidents with casualties / fatalities by score ntile
+# Proportion of incidents with casualties / fatalities by priority
 p <- scores %>%
   left_join(incidents %>%
               mutate(UPRN = as.numeric(UPRN)) %>%
               select(UPRN, CALLDATE, NUMBER_OF_CASUALTIES, NUMBER_OF_FATALITIES),
             by="UPRN") %>%
   replace_na(list(NUMBER_OF_CASUALTIES = 0, NUMBER_OF_FATALITIES = 0)) %>%
-  mutate(Quantile = Quantile %>%
+  mutate(Priority = Priority %>%
            as.factor() %>%
            fct_relevel(c("A+", "A", "B+", "B", "C", "D", "E", "F", "NR"))) %>%
-  group_by(Quantile) %>%
+  group_by(Priority) %>%
   summarise(total_casualties = sum(NUMBER_OF_CASUALTIES),
             total_fatalities = sum(NUMBER_OF_FATALITIES)) %>%
   mutate(total_casfat = total_casualties + total_fatalities) %>%
-  ggplot(aes(Quantile, total_casfat)) +
+  ggplot(aes(Priority, total_casfat)) +
   geom_col(fill="royalblue") +
-  ggtitle("Number of incidents involving a casualty or a fatality in Humberside by 9-tile (Proposed Model)") +
-  xlab("Risk Quantile (A+ is highest risk)") +
+  ggtitle("Number of incidents involving a casualty or a fatality in Humberside by priority group (Proposed Model)") +
+  xlab("Priority Group (A+ is highest risk)") +
   ylab("Number of Casualty or Fatality Incidents")
 
 p <- old_scores %>%
@@ -224,9 +224,9 @@ ggplotly(p)
 
 # Number of high-priority dwellings by Mosaic type
 p <- scores %>%
-  mutate(high_priority = (Final_Score > 130)) %>%
+  filter(Priority == "A+") %>%
   group_by(Mosaic_Type) %>%
-  summarise(total = sum(high_priority)) %>%
+  summarise(total = n()) %>%
   filter(total > 0) %>%
   ggplot(aes(reorder(Mosaic_Type, -total), total)) +
   geom_col()
@@ -235,10 +235,8 @@ ggplotly(p)
 
 # Proportion of high-priority dwellings by Mosaic type
 p <- scores %>%
-  mutate(high_priority = (Final_Score > 130)) %>%
   group_by(Mosaic_Type) %>%
-  summarise(total = sum(high_priority),
-            prop = sum(high_priority) / n()) %>%
+  summarise(prop = sum((Priority == "A+")) / n()) %>%
   filter(prop > 0) %>%
   ggplot(aes(reorder(Mosaic_Type, -prop), prop)) +
   geom_col(fill="royalblue") +
@@ -265,7 +263,7 @@ ggplotly(p)
 # Make map of high-priority areas -----------------
 
 # Convert new coords
-coords.EPSG.27700 = SpatialPoints(cbind(scores[scores$Final_Score > 130,]$Easting, scores[scores$Final_Score > 130,]$Northing), proj4string=CRS("+init=epsg:27700"))                                                                                      # Easting / Northing
+coords.EPSG.27700 = SpatialPoints(cbind(scores[scores$Priority == "A+",]$Easting, scores[scores$Priority == "A+",]$Northing), proj4string=CRS("+init=epsg:27700"))                                                                                      # Easting / Northing
 coords.EPSG.4326 <- spTransform(coords.EPSG.27700, CRS("+init=epsg:4326"))                                     # Long / Lat
 
 # Convert old coords
