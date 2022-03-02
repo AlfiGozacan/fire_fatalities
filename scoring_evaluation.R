@@ -117,14 +117,17 @@ p <- scores %>%
               select(UPRN, CALLDATE, NUMBER_OF_CASUALTIES, NUMBER_OF_FATALITIES),
             by="UPRN") %>%
   replace_na(list(NUMBER_OF_CASUALTIES = 0, NUMBER_OF_FATALITIES = 0)) %>%
+  mutate(Quantile = Quantile %>%
+           as.factor() %>%
+           fct_relevel(c("A+", "A", "B+", "B", "C", "D", "E", "F", "NR"))) %>%
   group_by(Quantile) %>%
   summarise(total_casualties = sum(NUMBER_OF_CASUALTIES),
             total_fatalities = sum(NUMBER_OF_FATALITIES)) %>%
   mutate(total_casfat = total_casualties + total_fatalities) %>%
-  ggplot(aes(reorder(Quantile, -total_casfat), total_casfat)) +
+  ggplot(aes(Quantile, total_casfat)) +
   geom_col(fill="royalblue") +
   ggtitle("Number of incidents involving a casualty or a fatality in Humberside by 9-tile (Proposed Model)") +
-  xlab("9-tile (higher score equates to higher risk)") +
+  xlab("Risk Quantile (A+ is highest risk)") +
   ylab("Number of Casualty or Fatality Incidents")
 
 p <- old_scores %>%
@@ -140,7 +143,7 @@ p <- old_scores %>%
             frequency = n()) %>%
   mutate(total_casfat = total_casualties + total_fatalities) %>%
   mutate(propn_casfat = total_casfat / frequency) %>%
-  ggplot(aes(reorder(Final_Prio, rank), propn_casfat)) +
+  ggplot(aes(reorder(Final_Prio, -rank), propn_casfat)) +
   geom_col(fill="tomato") +
   ggtitle("Proportion of households where a casualty or fatality has been recorded by priority score (Current Model)") +
   xlab("Priority Score") +

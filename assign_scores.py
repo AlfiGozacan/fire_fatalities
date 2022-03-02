@@ -68,6 +68,9 @@ dwellings = pd.read_sql(query, cnxn)
 ### Clean data
 print("Cleaning data...")
 
+dwellings.drop(dwellings.index[dwellings["Type_Desc"] == "U-99"], axis=0, inplace=True)
+dwellings.reset_index(drop=True, inplace=True)
+
 exeter.replace(np.nan, "", inplace=True)
 exeter["UPRN"].replace("", 0, inplace=True)
 
@@ -107,7 +110,7 @@ for i in tqdm(range(len(exeter_strings))):
 
         matching_indices.append(0)
 
-        final_fuzz_ratios.append(match_score)
+        final_fuzz_ratios.append(0)
 
         continue
 
@@ -142,10 +145,6 @@ year = now.year
 exeter["Age"] = [year - x for x in exeter["Year_Of_Birth"]]
 
 df = dwellings.merge(right=exeter, on="UPRN", how="left")
-
-df.drop(df.index[df["Type_Desc"] == "U-99"], axis=0, inplace=True)
-
-df.reset_index(drop=True, inplace=True)
 
 df["Type_Desc"].replace("-", "", regex=True, inplace=True)
 
